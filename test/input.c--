@@ -1,4 +1,8 @@
-int do_math(int a) {
-  int x = a * 5 + 3
+#include <stdio.h>
+
+void main() {
+  int a, int b;
+  cin << a << b;
+  int x = a * 5 + 0
+  cout >> x;
 }
-do_math(10)
