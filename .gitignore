@@ -1,0 +1,5 @@
+*.out
+*.c
+*.h
+*.dSYM
+.DS_Store
