@@ -4,7 +4,7 @@
  * @Autor: Alex
  * @Date: 2019-12-23 20:00:09
  * @LastEditors: Alex
- * @LastEditTime: 2019-12-24 15:32:16
+ * @LastEditTime: 2019-12-24 20:20:11
  -->
 # 语法分析（C--）
 
@@ -95,7 +95,9 @@ InstalledDir: /Library/Developer/CommandLineTools/usr/bin
     └── square.pl0
 ```
 
-其中 Makefile 如下:
+其中 `Makefile` 如下:
+
+
 ```
 bison:
 	flex -o src/scanner.c src/scanner.l
@@ -108,6 +110,8 @@ lex:
 	gcc -g -o src/parser src/scanner.c -ll
 	./src/parser < test/input.c--
 ```
+[阮一峰的Makefile教程](http://www.ruanyifeng.com/blog/2015/02/make.html)
+
 `Makefile`部分解释如下: 
 
 1. 对lex语言描述的词法文件`scanner.l`
@@ -328,5 +332,84 @@ A keyword: int
 An identifier: a
 ...
 ```
+### 描述文法
 
-在`Makefile`所在目录执行`make`命令
+#### 语义信息
+符号的语义信息存储于全局变量 `yylval` 中
+
+```Bison
+yylval = value;  /* Put value onto Bison stack. */
+return INT;      /* Return the type of the token. */
+```
+```
+%union {
+  int intval;
+  double val;
+  symrec *tptr;
+}
+
+...
+yylval.intval = value; /* Put value onto Bison stack. */
+return INT;          /* Return the type of the token. */
+...
+```
+以上代码将符号压栈，并返回类型
+
+#### 移进规约
+例：
+
+Bison的解析栈(parser stack)中已经移进(shift)了4个字符：
+1 + 5 * 3
+
+接下来遇到了另起一行的符号，根据以下公式将解析栈中的后3个字符进行规约(reduce)
+```
+expr: expr '*' expr;
+```
+解析栈中变成3个字符1 + 15
+
+自下而上的解析器将不断对读到的句子进行移进规约操作，直到输入序列只剩文法的开始符号
+
+#### 向前看符号（Look-ahead tokens）
+
+    look-ahead：读到字符但是不急着规约的行为
+
+
+若定义加法表达式（expr）和符号（term）如下：
+```
+expr:     term '+' expr
+        | term
+        ;
+
+term:     '(' expr ')'
+        | term '!'
+        | NUMBER
+        ;
+```
+若解析栈中移进：`1 + 2`
+
+情况一：
+若接着遇到右括号“)”，则栈中三个符号要被规约为`expr`才能接着被规约为`term`, 但这些操作没有对应规则（缺了一个左括号不能完成规约）
+
+情况二：
+若接着遇到阶乘符号“!”，否则若栈中`1+2`先发生规约而没有**向前看**，则得到`3!=6`而不是`1+2!=3`
+
+`向前看符号`会被存储在`yychar`变量中
+
+另外在编写的时候还要注意：移进规约冲突，符号优先级，上下文相关优先级
+
+
+## 开始编写
+
+拿到一份待分析的代码文件，首先做语法分析，更细的再做词法分析；
+
+程序员首先定义词法，再定义语法。
+### 需求分析
+
+C--语言需要支持简易的计算功能（变量或者整数间的赋值，加减乘除），文法`.y`中需要定义算符优先级(后定义的优先级高)：
+```
+%left '='
+%left '+' '-'
+%left '*' '/'
+```
+
+
