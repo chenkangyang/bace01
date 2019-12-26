@@ -1,7 +1,15 @@
 #include <stdio.h>
+
 void main() {
-  int a;
-  cin >> a;
-  a = a * 5 + 3.1415926536 - a / a;
-  cout << x;
+
+  double a_0;
+  cout << a_0;
+
+  a_0 = 4 + 3 / 2 - 1 * 0;
+  cout << a_0;
+
+  b = 3;
+  c = 3.14;
+  d = b + c;
+  cout << d;
 }
