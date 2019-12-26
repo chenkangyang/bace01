@@ -1,8 +1,7 @@
 #include <stdio.h>
-
 void main() {
-  int a, int b;
-  cin << a << b;
-  int x = a * 5 + 0
-  cout >> x;
+  int a;
+  cin >> a;
+  a = a * 5 + 3.1415926536 - a / a;
+  cout << x;
 }

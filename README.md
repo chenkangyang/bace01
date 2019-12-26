@@ -3,8 +3,8 @@
  * @Version: 1.0
  * @Autor: Alex
  * @Date: 2019-12-23 20:00:09
- * @LastEditors: Alex
- * @LastEditTime: 2019-12-24 20:20:11
+ * @LastEditors  : Alex
+ * @LastEditTime : 2019-12-26 10:30:07
  -->
 # 语法分析（C--）
 
@@ -403,13 +403,39 @@ term:     '(' expr ')'
 拿到一份待分析的代码文件，首先做语法分析，更细的再做词法分析；
 
 程序员首先定义词法，再定义语法。
-### 需求分析
 
-C--语言需要支持简易的计算功能（变量或者整数间的赋值，加减乘除），文法`.y`中需要定义算符优先级(后定义的优先级高)：
+待分析代码`input.c--`如下：
+
+```c
+#include <stdio.h>
+void main() {
+  int a;
+  cin >> a;
+  a = a * 5 + 3.1415926536 - a / a;
+  cout << x;
+}
 ```
-%left '='
-%left '+' '-'
-%left '*' '/'
+
+分析结果如下：
+```
+➜  bace01 git:(master) ✗ make bison
+cd src/ && bison -d analyser.y
+analyser.y: conflicts: 7 shift/reduce
+analyser.y:52.5: warning: rule never reduced because of conflicts: stmt: /* empty */
+flex -o src/scanner.c src/scanner.l
+gcc -g -o src/parser src/*.c
+./src/parser < test/input.c--
+Header
+定义INT变量
+语句串
+输入语句
+语句串
+赋值语句
+语句串
+输出语句
+语句串
+语句块
+函数
 ```
 
-
+第一版: tag
