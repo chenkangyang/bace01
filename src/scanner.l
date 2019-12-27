@@ -10,6 +10,8 @@ gcc -g -o src/parser src/scanner.c -ll
 #include "analyser.tab.h"
 
 void yyerror(char *);
+int row_cnt = 0;
+int col_cnt = 0;
 %}
 
 INTEGER    [0-9]+
@@ -20,26 +22,28 @@ AT         \/\*(.*)\*\/
 DM         ,|;|\(|\)|\{|\}|\[|\]|\'|\"|<|>
 STR        \".*?\"|\'.*?\'
 %%
-[\n]                  {}
+[\n]                  {
+                        row_cnt ++; 
+                      }
 {HD}                  {} /* 系统保留字单独定义 */
-"main"                {
-                        return FUN;
-                      } 
-"int"                 { return INT;}
-"double"              { return DOUBLE;}
-"void"                { return VOID;}
-"cin"                 {
-                        return CIN;
-                      } 
-">>"                  {
-                        return TO_RIGHT;
-                      }
-"cout"                {
-                        return COUT;
-                      }
-"<<"                  {
-                        return TO_LEFT;
-                      } /*...*/
+"main"                return FUN;
+                      return INT;
+"double"              return DOUBLE;
+"int"                 return INT;
+"void"                return VOID;
+"cin"                 return CIN; 
+">>"                  return TO_RIGHT;
+"cout"                return COUT;
+"<<"                  return TO_LEFT;
+">="                  return GE;
+"<="                  return LE;
+"=="                  return EQ;
+"!="                  return NE;
+"&&"                  return AND;
+"||"                  return OR;
+"while"               return WHILE;
+"if"                  return IF;
+"else"                return ELSE;
 {ID}                  {
                         varNode * vp = searchVarTab(yytext);
                         if (vp == 0) 
@@ -50,12 +54,12 @@ STR        \".*?\"|\'.*?\'
 {INTEGER}             {
                         yylval.val = atof(yytext); 
                         return NUM;
-                      }
+                      }/*...*/
 {FLOAT}               {
                         yylval.val = atof(yytext); 
                         return NUM;
                       }
-[()<>=+\-/\*\;\{\}]   { return *yytext; }
+[()<>=+\-/\*\;\{\}]   return *yytext;
 [ \t]+                /* eat up whitespace */
 .                     printf( "Unrecognized character: %s\n", yytext );
 
@@ -71,7 +75,6 @@ varNode * insertVarTab (char * var_name)
   /* 头插进变量表 */
   vp->next = (struct varNode *)var_table;
   var_table = vp;
-  
   var_cnt ++;
 
   return vp;

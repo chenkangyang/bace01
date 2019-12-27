@@ -31,40 +31,47 @@ Node     *nptr;      /* 节点表表指针 */
 
 /* 保留字 */
 %token FUN DEF INT DOUBLE VOID 
-%token COUT CIN TO_RIGHT TO_LEFT
-%token FOR WHILE
-%token IF
-%token ELSE
+%token TO_RIGHT TO_LEFT
+%token WHILE IF COUT CIN
 
-
+%nonassoc IFX
+%nonassoc ELSE
+%left AND OR GE LE EQ NE '>' '<'
 %right '='
 %left '-' '+'
 %left '*' '/'
 %left NEG     /* 取负 */
-%type <nptr> exp stmt
+%type <nptr> exp stmt stmt_list stmt_block
 
 /* Grammar rules and actions follow */
 %%
 
 function: 
             VOID FUN '(' ')' stmt_block { 
-                                        //  printf("函数\n"); 
+                                          // printf("函数\n");
+                                          printf("执行该语句\n");
+                                          executeNode($5);
+                                          printf("执行成功\n");
+                                          freeNode($5);
+                                          printf("释放成功\n");
                                         }
 ;
 
 stmt_block:
             '{' stmt_list '}' {
                                 // printf("语句块\n");
+                                $$ = $2;
                               }
 ;
 
 stmt_list:
-            /* empty string */
+              stmt            { $$ =$1; }
             | stmt_list stmt  {
+                                $$ = setOpr(';', 2, $1, $2);
                                 // printf("执行该语句\n");
-                                executeNode($2);
+                                // executeNode($2);
                                 // printf("执行成功\n");
-                                freeNode($2);
+                                // freeNode($2);
                                 // printf("释放成功\n");
                               }
 ;
@@ -74,6 +81,18 @@ stmt:
             | DOUBLE VAR ';'            {
                                             // printf("声明Double变量\n");
                                             $$ = setOpr(DEF, 1, setVar($2));
+                                        }
+            | INT VAR ';'               {
+                                            // printf("声明Int变量\n");
+                                            $$ = setOpr(DEF, 1, setVar($2));
+                                        }
+            | DOUBLE VAR '=' exp ';'    {
+                                            // printf("声明Double变量, 并赋值\n");
+                                            $$ = setOpr('=', 2, setVar($2), $4);
+                                        }
+            | INT VAR '=' exp ';'       {
+                                            // printf("声明Int变量, 并赋值\n");
+                                            $$ = setOpr('=', 1, setVar($2), $4);
                                         }
             | CIN TO_RIGHT exp ';'      { 
                                           printf("输入语句\n"); 
@@ -87,6 +106,10 @@ stmt:
                                           // printf("赋值语句\n"); 
                                           $$ = setOpr('=', 2, setVar($1), $3); 
                                         }
+            | WHILE '(' exp ')' stmt_block  { 
+                                              $$ = setOpr(WHILE, 2, $3, $5);  
+                                            }
+            | stmt_block                { $$ = $1; }
 ;
 exp:         
               NUM                 { $$ = setNum($1);                  }
@@ -96,6 +119,12 @@ exp:
             | exp '*' exp         { $$ = setOpr('*', 2, $1,  $3);     }
             | exp '/' exp         { $$ = setOpr('/', 2, $1,  $3);     }
             | '-' exp  %prec NEG  { $$ = setOpr(NEG, 1, $2);          }
+            | exp GE exp        { $$ = setOpr(GE, 2, $1, $3);          }
+            | exp LE exp        { $$ = setOpr(LE, 2, $1, $3);          }
+            | exp NE exp        { $$ = setOpr(NE, 2, $1, $3);          }
+            | exp EQ exp        { $$ = setOpr(EQ, 2, $1, $3);          }
+            | exp AND exp       { $$ = setOpr(AND, 2, $1, $3);         }
+            | exp OR exp        { $$ = setOpr(OR, 2, $1, $3);          }
             | '(' exp ')'         { $$ = $2;                          }
 ;
 %%
@@ -195,10 +224,22 @@ double executeNode(Node * p) {
           double var_value = executeNode(p->op.node[1]);
           return setVarTable(var_name, var_value);
         }
+        case WHILE:  {
+          while (executeNode(p->op.node[0]))
+            executeNode(p->op.node[1]);
+          return 0;
+        }
+        case NEG:    return (-1) * executeNode(p->op.node[0]);
         case '+':    return executeNode(p->op.node[0]) + executeNode(p->op.node[1]);
         case '-':    return executeNode(p->op.node[0]) - executeNode(p->op.node[1]);
         case '*':    return executeNode(p->op.node[0]) * executeNode(p->op.node[1]);
         case '/':    return executeNode(p->op.node[0]) / executeNode(p->op.node[1]);
+        case GE:     return executeNode(p->op.node[0]) >= executeNode(p->op.node[1]);
+        case LE:     return executeNode(p->op.node[0]) <= executeNode(p->op.node[1]);
+        case NE:     return executeNode(p->op.node[0]) != executeNode(p->op.node[1]);
+        case EQ:     return executeNode(p->op.node[0]) == executeNode(p->op.node[1]);
+        case AND:    return executeNode(p->op.node[0]) && executeNode(p->op.node[1]);
+        case OR:     return executeNode(p->op.node[0]) || executeNode(p->op.node[1]);
       }
   }
   return 0;
@@ -237,6 +278,8 @@ varNode * searchVarTab (char * var_name)
 }
 
 void yyerror(char *s) {
+
+  printf("<Parser Error> Line %d :", row_cnt + 1);
   printf("%s\n", s);
 }
 

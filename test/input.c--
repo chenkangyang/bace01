@@ -3,6 +3,10 @@
 void main() {
 
   double a_0;
+  double b;
+  double c;
+  double d;
+  
   cout << a_0;
 
   a_0 = 4 + 3 / 2 - 1 * 0;
@@ -12,4 +16,12 @@ void main() {
   c = 3.14;
   d = b + c;
   cout << d;
+
+  int i = 0;
+  while( i <= 10 ) {
+    cout << i;
+    i = i + 1;
+  }
+  cout << (i + 999);
+
 }
