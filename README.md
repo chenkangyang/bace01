@@ -4,7 +4,7 @@
  * @Autor: Alex
  * @Date: 2019-12-23 20:00:09
  * @LastEditors  : Alex
- * @LastEditTime : 2019-12-26 23:06:28
+ * @LastEditTime : 2019-12-27 22:05:55
  -->
 # C 解析器 (Parser)
 
@@ -29,7 +29,7 @@ F∷= (E)|<标识符>|整数
 <输入语句>∷=cin>><标识符>;
 <输出语句>∷=cout<<<标识符>;
 ```
-
+更为具体的解释查看[文档](./doc.md)
 
 ```
                    +-------+                      +--------+
@@ -138,7 +138,7 @@ Header
 ```
 根据在 `.y` 文件中定义的文法的先后, 越后定义文法的越先识别, 并且别识别边`规约`. 因此程序从细到粗依次识别了: 变量(`int a` ), 语句串(`int a;`), 输入语句`cin >> a;`, 语句串(`int a; cin >> a;`), 赋值语句, `...` , 语句块(`{ ... }`), 函数(`void main() {...}`);
 
-## V1.1
+## V1.1 
 程序: [v1.1](https://github.com/chenkangyang/bace01/releases/tag/v1.1)
 
     语义解析: 加减乘除和输出语句
@@ -181,4 +181,93 @@ gcc -g -o src/parser src/scanner.c src/analyser.tab.c
 0
 5.5
 6.14
+```
+
+
+## V1.2
+程序: [v1.2](https://github.com/chenkangyang/bace01/releases/tag/v1.2)
+
+    语义解析: 加减乘除, 输出语句, while 循环, if-else 
+
+待分析代码`input.c--`如下：
+```c
+#include <stdio.h>
+
+void main() {
+
+  double a_0;
+  double b;
+  double c;
+  double d;
+  
+  cout << a_0;
+
+  a_0 = 4 + 3 / 2 - 1 * 0;
+  cout << a_0;
+
+  b = 3;
+  c = 3.14;
+  d = b + c;
+  cout << d;
+
+  int i = 0;
+  while( i <= 10 ) {
+    cout << i;
+    i = i + 1;
+  }
+  cout << (i + 999);
+
+  double e = d;
+  while (e <= 20) {
+    if(e <= 15) {
+      cout << e;
+    } 
+    else {
+      cout << 20;
+    }
+    e = e + 1;
+  }
+}
+```
+
+执行结果如下:
+```bash
+➜  bace01 git:(master) make clean
+rm src/*.c
+➜  bace01 git:(master) make bison
+cd src/ && bison -d analyser.y
+➜  bace01 git:(master) make lex
+flex -o src/scanner.c src/scanner.l
+➜  bace01 git:(master) make
+gcc -g -o src/parser src/scanner.c src/analyser.tab.c
+./src/parser < test/input.c--
+0
+5.5
+6.14
+0
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+1010
+6.14
+7.14
+8.14
+9.14
+10.14
+11.14
+12.14
+13.14
+14.14
+20
+20
+20
+20
+20
 ```

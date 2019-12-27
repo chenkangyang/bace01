@@ -50,11 +50,11 @@ Node     *nptr;      /* 节点表表指针 */
 function: 
             VOID FUN '(' ')' stmt_block { 
                                           // printf("函数\n");
-                                          printf("执行该语句\n");
+                                          // printf("执行该语句\n");
                                           executeNode($5);
-                                          printf("执行成功\n");
+                                          // printf("执行成功\n");
                                           freeNode($5);
-                                          printf("释放成功\n");
+                                          // printf("释放成功\n");
                                         }
 ;
 
@@ -69,11 +69,6 @@ stmt_list:
               stmt            { $$ =$1; }
             | stmt_list stmt  {
                                 $$ = setOpr(';', 2, $1, $2);
-                                // printf("执行该语句\n");
-                                // executeNode($2);
-                                // printf("执行成功\n");
-                                // freeNode($2);
-                                // printf("释放成功\n");
                               }
 ;
 
