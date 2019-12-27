@@ -24,4 +24,14 @@ void main() {
   }
   cout << (i + 999);
 
+  double e = d;
+  while (e <= 20) {
+    if(e <= 15) {
+      cout << e;
+    } 
+    else {
+      cout << 20;
+    }
+    e = e + 1;
+  }
 }

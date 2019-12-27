@@ -13,7 +13,6 @@ Node * setVar(varNode *);         // 设置变量结点
 Node * setOpr(int, int, ...);     // 设置操作符结点
 double executeNode(Node * p);     // 执行节点语句
 int setVarTable(char *, double);  // 赋值变量表
-// double getVarTable(char *);       // 查询变量表
 void freeNode(Node *);            // 释放结点
 
 varNode * var_table = (varNode *)0;
@@ -26,21 +25,23 @@ varNode  *tptr;      /* 变量表指针 */
 Node     *nptr;      /* 节点表表指针 */
 }
 
+/* 终结符 */
 %token <val>  NUM
 %token <tptr> VAR
-
-/* 保留字 */
 %token FUN DEF INT DOUBLE VOID 
 %token TO_RIGHT TO_LEFT
 %token WHILE IF COUT CIN
 
+/* 算符 */
 %nonassoc IFX
-%nonassoc ELSE
+%nonassoc ELSE /* if-else嵌套中, else比if优先规约 */
 %left AND OR GE LE EQ NE '>' '<'
 %right '='
 %left '-' '+'
 %left '*' '/'
 %left NEG     /* 取负 */
+
+/* 非终结符*/
 %type <nptr> exp stmt stmt_list stmt_block
 
 /* Grammar rules and actions follow */
@@ -106,9 +107,16 @@ stmt:
                                           // printf("赋值语句\n"); 
                                           $$ = setOpr('=', 2, setVar($1), $3); 
                                         }
-            | WHILE '(' exp ')' stmt_block  { 
+            | WHILE '(' exp ')' stmt  { 
                                               $$ = setOpr(WHILE, 2, $3, $5);  
                                             }
+
+            | IF '(' exp ')' stmt %prec IFX { 
+                                              $$ = setOpr(IF, 2, $3, $5); 
+                                            }
+            | IF '(' exp ')' stmt ELSE stmt %prec ELSE  { 
+                                                          $$ = setOpr(IF, 3, $3, $5, $7); 
+                                                        }
             | stmt_block                { $$ = $1; }
 ;
 exp:         
@@ -227,6 +235,13 @@ double executeNode(Node * p) {
         case WHILE:  {
           while (executeNode(p->op.node[0]))
             executeNode(p->op.node[1]);
+          return 0;
+        }
+        case IF:     {
+          if (executeNode(p->op.node[0]))
+            executeNode(p->op.node[1]);
+          else if (p->op.num > 2)
+            executeNode(p->op.node[2]);
           return 0;
         }
         case NEG:    return (-1) * executeNode(p->op.node[0]);
