@@ -70,9 +70,9 @@ InstalledDir: /Library/Developer/CommandLineTools/usr/bin
 ├── README.md
 ├── doc.md
 ├── src
-│   ├── analyser.tab.c
-│   ├── analyser.tab.h
-│   ├── analyser.y
+│   ├── analyzer.tab.c
+│   ├── analyzer.tab.h
+│   ├── analyzer.y
 │   ├── node.h
 │   ├── parser
 │   ├── scanner.c
@@ -94,7 +94,7 @@ all:
 	./src/parser < test/input.c--
 
 bison:
-	cd src/ && bison -d analyser.y
+	cd src/ && bison -d analyzer.y
 
 lex:
 	flex -o src/scanner.c src/scanner.l
@@ -113,7 +113,7 @@ pair:
 
 1. 对lex语言描述的词法文件`scanner.l`
 使用`flex`转换得到c语言描述的词法文件, 默认输出为 `lex.yy.c` 我们重命名为: `-o scanner.c`
-2. 对bison语言描述的语法文件`analyser.y`进行转换得到c语言描述的语法文件, 参数`-d`将`.h`文件和`.c`文件分离, 默认输出为`analyser.tab.c`和`analyser.tab.h`, 将`analyser.tab.h`include进`lex`文件以进行下一步的联合编译
+2. 对bison语言描述的语法文件`analyzer.y`进行转换得到c语言描述的语法文件, 参数`-d`将`.h`文件和`.c`文件分离, 默认输出为`analyzer.tab.c`和`analyzer.tab.h`, 将`analyzer.tab.h`include进`lex`文件以进行下一步的联合编译
 3. 对`1`,`2`中生成文件进行联合编译, 输出可执行程序`parser`, 对输入文件`input.c--`进行语法分析.
 4. 若lex文件没有main函数和yywrap,则在MAC上编译需添加 `-ll`参数, windows下用`-lfl`参数, 意思都是将flex库包含进去
 
@@ -459,9 +459,9 @@ void main() {
 分析结果如下：
 ```
 ➜  bace01 git:(master) ✗ make bison
-cd src/ && bison -d analyser.y
-analyser.y: conflicts: 7 shift/reduce
-analyser.y:52.5: warning: rule never reduced because of conflicts: stmt: /* empty */
+cd src/ && bison -d analyzer.y
+analyzer.y: conflicts: 7 shift/reduce
+analyzer.y:52.5: warning: rule never reduced because of conflicts: stmt: /* empty */
 flex -o src/scanner.c src/scanner.l
 gcc -g -o src/parser src/*.c
 ./src/parser < test/input.c--
@@ -532,11 +532,11 @@ void main() {
 ➜  bace01 git:(master) make clean
 rm src/*.c
 ➜  bace01 git:(master) make bison
-cd src/ && bison -d analyser.y
+cd src/ && bison -d analyzer.y
 ➜  bace01 git:(master) make lex
 flex -o src/scanner.c src/scanner.l
 ➜  bace01 git:(master) make
-gcc -g -o src/parser src/scanner.c src/analyser.tab.c
+gcc -g -o src/parser src/scanner.c src/analyzer.tab.c
 ./src/parser < test/input.c--
 0
 5.5

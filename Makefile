@@ -1,9 +1,9 @@
 all:
-	gcc -g -o src/parser src/scanner.c src/analyser.tab.c
+	gcc -g -o src/parser src/scanner.c src/analyzer.tab.c
 	./src/parser < test/input.c--
 
 bison:
-	cd src/ && bison -d analyser.y
+	cd src/ && bison -d analyzer.y
 
 lex:
 	flex -o src/scanner.c src/scanner.l

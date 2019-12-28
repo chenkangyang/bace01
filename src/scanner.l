@@ -7,7 +7,7 @@ gcc -g -o src/parser src/scanner.c -ll
 */
 #include <stdlib.h>
 #include "node.h"
-#include "analyser.tab.h"
+#include "analyzer.tab.h"
 
 void yyerror(char *);
 int row_cnt = 0;

@@ -4,7 +4,7 @@
  * @Autor: Alex
  * @Date: 2019-12-23 20:00:09
  * @LastEditors  : Alex
- * @LastEditTime : 2019-12-27 22:05:55
+ * @LastEditTime : 2019-12-28 21:21:57
  -->
 # C 解析器 (Parser)
 
@@ -69,9 +69,9 @@ InstalledDir: /Library/Developer/CommandLineTools/usr/bin
 ├── README.md
 ├── doc.md
 ├── src
-│   ├── analyser.tab.c
-│   ├── analyser.tab.h
-│   ├── analyser.y
+│   ├── analyzer.tab.c
+│   ├── analyzer.tab.h
+│   ├── analyzer.y
 │   ├── node.h
 │   ├── parser
 │   ├── scanner.c
@@ -118,9 +118,9 @@ void main() {
 分析结果如下：
 ```bash
 ➜  bace01 git:(master) ✗ make bison
-cd src/ && bison -d analyser.y
-analyser.y: conflicts: 7 shift/reduce
-analyser.y:52.5: warning: rule never reduced because of conflicts: stmt: /* empty */
+cd src/ && bison -d analyzer.y
+analyzer.y: conflicts: 7 shift/reduce
+analyzer.y:52.5: warning: rule never reduced because of conflicts: stmt: /* empty */
 flex -o src/scanner.c src/scanner.l
 gcc -g -o src/parser src/*.c
 ./src/parser < test/input.c--
@@ -172,11 +172,11 @@ void main() {
 ➜  bace01 git:(master) ✗ make clean
 rm src/*.c
 ➜  bace01 git:(master) ✗ make bison
-cd src/ && bison -d analyser.y
+cd src/ && bison -d analyzer.y
 ➜  bace01 git:(master) ✗ make lex
 flex -o src/scanner.c src/scanner.l
 ➜  bace01 git:(master) ✗ make
-gcc -g -o src/parser src/scanner.c src/analyser.tab.c
+gcc -g -o src/parser src/scanner.c src/analyzer.tab.c
 ./src/parser < test/input.c--
 0
 5.5
@@ -235,11 +235,11 @@ void main() {
 ➜  bace01 git:(master) make clean
 rm src/*.c
 ➜  bace01 git:(master) make bison
-cd src/ && bison -d analyser.y
+cd src/ && bison -d analyzer.y
 ➜  bace01 git:(master) make lex
 flex -o src/scanner.c src/scanner.l
 ➜  bace01 git:(master) make
-gcc -g -o src/parser src/scanner.c src/analyser.tab.c
+gcc -g -o src/parser src/scanner.c src/analyzer.tab.c
 ./src/parser < test/input.c--
 0
 5.5
